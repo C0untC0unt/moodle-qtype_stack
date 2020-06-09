@@ -208,10 +208,10 @@ list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_
     unsketched_extrema: unsketched_extrema,
     
     /*This returns a list of the unsketched extrema in the following form: [pt(x_1, f(x_1)), pt(x_2, f(x_2)), ...] (Default)*/
-    return(makelist(pt(ev(x, unsketched_extrema[a]), ev(f, unsketched_extrema[a])), a, 1, length(unsketched_extrema)))
+    return(makelist(pt(ev(x, unsketched_extrema[a]), ev(fofx, unsketched_extrema[a])), a, 1, length(unsketched_extrema)))
     
     /*For a list of the unsketched extrema in the form [[x_1, f(x_1)], [x_2, f(x_2)], ...] use the following line as return instead.*/
-    /*return(makelist([ev(x, unsketched_extrema[a]), ev(f, unsketched_extrema[a])], a, 1, length(unsketched_extrema)))*/
+    /*return(makelist([ev(x, unsketched_extrema[a]), ev(fofx, unsketched_extrema[a])], a, 1, length(unsketched_extrema)))*/
     
     /*For a list of the unsketched extrema in the form [x=ex_1, x=ex_2, ...] (contains only x-values) use the following line as return instead.*/
     /*return(unsketched_extrema)*/
