@@ -129,7 +129,7 @@ accurate_sketch_p(ansx, ansy, fofx, ia, ib, ri, tacc) := block([md, k, x, i, sac
 
 
 
-/*Extrema part 1: The following part returns "true" if all of the extrema were sketched and "false" if there is at least on unsketched extrema. (If the function has no extrema it also returns "true")*/
+/*Extrema part 1: The following part returns "true" if all of the extrema were sketched and "false" if there is at least one unsketched extremum. (If the function has no extrema it also returns "true")*/
 
 extrema_sketched_p(ansx, ansy, fofx, dr):= block([i, j, k, extr, second_derivative, without_saddle_points, unsketched_extrema, retall],
     
@@ -176,7 +176,7 @@ extrema_sketched_p(ansx, ansy, fofx, dr):= block([i, j, k, extr, second_derivati
 
 /*Extrema part 2: The following part gives a list of the extrema unsketched. (If all extrema were sketched this will return an empty list)*/
 
-list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_derivative, without_saddle_points, unsketched_extrema, retall],
+list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_derivative, without_saddle_points, unsketched_extrema],
     
     /*extr is a variable to identify the x-values of extrema (and saddle points).*/
     extr: solve(diff(fofx,x)=0,x),
@@ -220,16 +220,22 @@ list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_
 
 
 
+
+
+
+
 /* x-intercepts: Are all x-intercepts of the function fofx (f of x) within the sketch. */
 /* Considering possible inaccuracies, the following block looks for points within a <dr radius around the x-intercepts. */
 
-x_intercepts_sketched_p(ansx, ansy, fofx, dr):= block([i, k, xint, unsketched_intercepts,retall],
+/*x-intercepts part 1: The following part returns "true" if all of the x-intercepts were sketched and "false" if there is at least one unsketched x-intercept. (If the function has no x-intercepts it also returns "true")*/
+
+x_intercepts_sketched_p(ansx, ansy, fofx, dr):= block([i, k, xint, unsketched_intercepts, retall],
     
-    /* xint is a variable to identify the x-values of x-intercepts. */
-    xint: solve(fofx=0,x),
+    /* xint is a variable to identify the (real) x-values of x-intercepts. */
+    xint: float(realroots (fofx)),
+    
+    /*empty list that is going to be filled with entries of x-intercepts that are not sketched*/
     unsketched_intercepts: [],
-    /* retall is a variable to hold the answer. */
-    retall:true,
     
     for i:1 thru length(xint) do
     if
@@ -239,9 +245,46 @@ x_intercepts_sketched_p(ansx, ansy, fofx, dr):= block([i, k, xint, unsketched_in
     else
     unsketched_intercepts: unsketched_intercepts,
     
-    if unsketched_intercepts=[] then return(retall) else return(unsketched_intercepts)
+    /* retall is a variable to hold the answer. */
+    if unsketched_intercepts=[]
+    then
+    retall:true
+    else
+    retall:false,
+
+    return(retall)
 )$
 
+
+/*x-intercepts part 2: The following part gives a list of the x-intercepts unsketched. (If all x-intercepts were sketched this will return an empty list)*/
+
+list_unsketched_x_intercepts(ansx, ansy, fofx, dr):= block([i, k, xint, unsketched_intercepts],
+    
+    /* xint is a variable to identify the (real) x-values of x-intercepts. */
+    xint: float(realroots (fofx)),
+    
+    /*empty list that is going to be filled with entries of x-intercepts that are not sketched*/
+    unsketched_intercepts: [],
+        
+    /*Loop for detecting x-intercepts unsketched*/
+    /* x-intercepts are returned as decimal numbers rounded to 4 decimal places.  ()*/
+    for i:1 thru length(xint) do
+    if
+    length(sublist_indices(makelist((sqrt((ansx[k]-ev(x,  xint[i]))^2+(ansy[k])^2)),k,1,length(ansx)), lambda([ex], ex<=dr)))=0
+    then
+    /*This returns a list of the unsketched x-intercepts in the following form:  [x=ex_1, x=ex_2, ...] (Default, contains only x-values)*/
+    unsketched_intercepts: endcons(x=float(round(ev(x,xint[i])*10^4)/10^4), unsketched_intercepts)
+    
+    /*For a list of the unsketched extrema in the form [pt(x_1, 0), pt(x_2, 0), ...] use the following line as return instead.*/
+    /*unsketched_intercepts: endcons(pt(float(round(ev(x,xint[i])*10^4)/10^4), 0), unsketched_intercepts)*/
+    
+    /*For a list of the unsketched extrema in the form [[x_1, 0], [x_2, 0], ...] use the following line as return instead.*/
+    /*unsketched_intercepts: endcons([float(round(ev(x,xint[i])*10^4)/10^4), 0], unsketched_intercepts)*/
+    else
+    unsketched_intercepts: unsketched_intercepts,
+    
+    return(unsketched_intercepts)   
+)$
 
 
 
