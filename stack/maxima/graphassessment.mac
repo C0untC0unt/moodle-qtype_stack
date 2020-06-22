@@ -182,53 +182,7 @@ accurate_sketch_p(ansx, ansy, fofx, ia, ib, ri, tacc) := block([md, k, x, i, sac
 /* Considering possible inaccuracies, the following block looks for points within a <dr radius around the extrema. */
 
 
-/*Extrema part 1: The following part returns "true" if all of the extrema were sketched and "false" if there is at least one unsketched extremum. (If the function has no extrema it also returns "true")*/
-
-extrema_sketched_p(ansx, ansy, fofx, dr):= block([i, j, k, extr, second_derivative, without_saddle_points, unsketched_extrema, retall],
-    
-	/* extr is a variable to identify the x-values of extrema (and saddle points). */
-    extr: solve(diff(fofx,x)=0,x),
-    
-    second_derivative: diff(fofx, x, 2),
-    
-    /* empty list that is going to be filled with the entries from extr but without the saddle points */
-    without_saddle_points:[],
-    
-    /*Loop for sorting out the saddle points*/
-    for j:1 thru length(extr) do
-    if
-    ev(second_derivative, extr[j])#0
-    then
-    without_saddle_points: endcons(extr[j], without_saddle_points)
-    else
-    without_saddle_points: without_saddle_points,
-    
-    /* empty list that is going to be filled with entries of extrema that are not sketched */
-    unsketched_extrema: [],
-        
-    /*Loop for detecting extrema unsketched */
-    for i:1 thru length(without_saddle_points) do
-    if
-    length(sublist_indices(makelist((sqrt((ansx[k]-ev(x,  without_saddle_points[i]))^2+(ansy[k]-ev(fofx,  without_saddle_points[i]))^2)),k,1,length(ansx)), lambda([ex], ex<=dr)))=0
-    then
-    unsketched_extrema: endcons(without_saddle_points[i], unsketched_extrema)
-    else
-    unsketched_extrema: unsketched_extrema,
-        
-    /* retall is a variable to hold the answer. */
-    if
-    unsketched_extrema=[] 
-    then 
-    retall:true
-    else
-    retall:false,
-    
-    return(retall)
-)$
-
-
-
-/*Extrema part 2: The following part gives a list of the extrema unsketched. (If all extrema were sketched this will return an empty list)*/
+/*Extrema part 1: The following part gives a list of the extrema unsketched. (If all extrema were sketched this will return an empty list)*/
 
 list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_derivative, without_saddle_points, unsketched_extrema],
     
@@ -270,6 +224,12 @@ list_unsketched_extrema(ansx, ansy, fofx, dr):= block([a, i, j, k, extr, second_
     /*For a list of the unsketched extrema in the form [x=ex_1, x=ex_2, ...] (contains only x-values) use the following line as return instead.*/
     /*return(unsketched_extrema)*/
 )$
+
+
+
+/*Extrema part 2: The following part returns "true" if all of the extrema were sketched and "false" if there is at least one unsketched extremum. (If the function has no extrema it also returns "true")*/
+
+extrema_sketched_p(ansx, ansy, fofx, dr):= is(list_unsketched_extrema(ansx, ansy, fofx, dr)=[]);
 
 
 
